@@ -1,0 +1,111 @@
+@import "tailwindcss";
+
+:root {
+  --background: #0b0e11;
+  --foreground: #e2e8f0;
+  --primary: #ff4655;
+  --card: #11161d;
+  --accent-blue: #00f0ff;
+  --purple: #8b5cf6;
+  --emerald: #10b981;
+  --gold: #f59e0b;
+}
+
+.light, [data-theme="light"] {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --primary: #ff4655;
+  --card: #ffffff;
+  --accent-blue: #0ea5e9;
+  --purple: #7c3aed;
+  --emerald: #059669;
+  --gold: #d97706;
+}
+
+/* Accessibility & UI Settings */
+[data-compact="true"] {
+  --spacing: 0.18rem;
+}
+
+[data-font-size="sm"] {
+  font-size: 14px;
+}
+
+[data-font-size="lg"] {
+  font-size: 18px;
+}
+
+[data-high-contrast="true"] {
+  --foreground: #ffffff;
+  --background: #000000;
+  --card: #111111;
+  /* Make text starker, borders stronger */
+}
+
+.light[data-high-contrast="true"], [data-theme="light"][data-high-contrast="true"] {
+  --foreground: #000000;
+  --background: #ffffff;
+  --card: #f0f0f0;
+}
+
+[data-high-contrast="true"] * {
+  border-color: currentColor !important;
+}
+
+[data-reduced-motion="true"] *, [data-reduced-motion="true"] *::before, [data-reduced-motion="true"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-card: var(--card);
+  --color-accent-blue: var(--accent-blue);
+  --color-purple: var(--purple);
+  --color-emerald: var(--emerald);
+  --color-gold: var(--gold);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* ── Custom scrollbar ─────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #ff4655; border-radius: 99px; }
+
+/* ── Glassmorphism utilities ──────────────────────────── */
+.glass-panel {
+  background: rgba(17, 22, 29, 0.75);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.glass-card {
+  background: rgba(17, 22, 29, 0.90);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* ── Gradient border helper ───────────────────────────── */
+.gradient-border {
+  border: 1px solid transparent;
+  background-clip: padding-box;
+  background-image: linear-gradient(#11161d, #11161d), linear-gradient(90deg, #ff4655, #8b5cf6);
+  background-origin: border-box;
+}
