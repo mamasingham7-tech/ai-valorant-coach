@@ -175,7 +175,7 @@ export default function ProfilePage() {
             <BarChart3 className="mx-auto text-slate-600" size={32} />
             <p className="text-slate-400 font-semibold">No data yet</p>
             <p className="text-slate-500 text-sm">Stats could not be loaded from the backend.</p>
-            <p className="text-xs text-slate-600">Make sure the backend is running on port 8000</p>
+            <p className="text-xs text-slate-600">Make sure the backend is running and accessible</p>
           </div>
         )}
 

@@ -1,18 +1,6 @@
 // Centralised API client with auto-retry and connection health tracking
 
-const getApiBase = () => {
-  if (process.env.NEXT_PUBLIC_API_URL) {
-    return process.env.NEXT_PUBLIC_API_URL;
-  }
-  if (typeof window !== "undefined") {
-    if (window.location.hostname !== "localhost") {
-      return `http://${window.location.hostname}:8000`;
-    }
-  }
-  return "http://localhost:8000";
-};
-
-export const API_BASE = getApiBase();
+export const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://ai-valorant-coach-backend.onrender.com";
 const PORTAL_BASE = `${API_BASE}/api/v1/portal`;
 
 // ── Health monitoring ──────────────────────────────────────────────────────
