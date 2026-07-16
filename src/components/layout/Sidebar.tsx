@@ -34,27 +34,6 @@ export default function Sidebar() {
     { id: 'marketplace', name: 'Marketplace', icon: ShoppingBag },
   ];
 
-  const [role, setRole] = React.useState<string | null>(null);
-
-  React.useEffect(() => {
-    const getRole = () => {
-      const token = localStorage.getItem('access_token');
-      if (!token) return 'guest';
-      try {
-        const base64Url = token.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-        }).join(''));
-        return JSON.parse(jsonPayload).role || 'user';
-      } catch {
-        return 'guest';
-      }
-    };
-    setRole(getRole());
-  }, []);
-
-  const visibleMenuItems = menuItems.filter(item => !item.role || item.role === role);
 
   return (
     <div 
@@ -87,7 +66,7 @@ export default function Sidebar() {
 
       {/* Navigation List */}
       <nav className="flex-1 px-4 py-6 space-y-1">
-        {visibleMenuItems.map((item) => {
+        {menuItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
           return (
