@@ -32,7 +32,6 @@ export default function Sidebar() {
     { id: 'live', name: 'Live Overlay', icon: Tv },
     { id: 'training', name: 'Training Center', icon: Award },
     { id: 'marketplace', name: 'Marketplace', icon: ShoppingBag },
-    { id: 'admin', name: 'Admin Control', icon: Settings, role: 'admin' },
   ];
 
   const [role, setRole] = React.useState<string | null>(null);

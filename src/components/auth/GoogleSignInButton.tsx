@@ -22,6 +22,7 @@ export function GoogleSignInButton({
       const res = await fetch(`${API_BASE}/api/v1/auth/google`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ credential: credentialResponse.credential }),
       });
       const data = await res.json();
