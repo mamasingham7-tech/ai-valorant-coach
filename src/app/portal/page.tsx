@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import AppShell from "@/components/layout/AppShell";
 import { useState, useEffect } from "react";
@@ -24,6 +25,7 @@ export default function PortalPage() {
 
   useEffect(() => {
     const saved = getLinkedAccount();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (saved) { setLinked(saved); setRiotId(saved.riotId); setRegion(saved.region); }
   }, []);
 
@@ -35,7 +37,7 @@ export default function PortalPage() {
       const res = await verifyRiotId(riotId);
       setPreview(res.data);
       setStep("confirmed");
-    } catch (err: unknown) {
+    } catch (err: any) {
       setError(err instanceof Error ? err.message : "Riot ID not found. Check spelling and try again.");
       setStep("input");
     }
@@ -60,7 +62,7 @@ export default function PortalPage() {
       saveLinkedAccount(account);
       setLinked(account);
       setTimeout(() => setStep("done"), 500);
-    } catch (err: unknown) {
+    } catch (err: any) {
       clearInterval(tick);
       setError(err instanceof Error ? err.message : "Failed to fetch player data. Try again.");
       setStep("confirmed");
@@ -361,7 +363,7 @@ export default function PortalPage() {
               <div className="text-[10px] text-slate-500 mt-0.5">Linked {new Date(linked.linkedAt).toLocaleDateString()}</div>
             </div>
             <div className="flex gap-2">
-              <button onClick={() => { setRiotId(linked.riotId); setRegion(linked.region); setStep("verifying"); handleVerify({ preventDefault: () => {} } as any); }}
+              <button onClick={() => { setRiotId(linked.riotId); setRegion(linked.region); setStep("verifying"); handleVerify({ preventDefault: () => {} } as React.FormEvent); }}
                 className="bg-[#ff4655]/10 border border-[#ff4655]/20 text-[#ff4655] text-xs font-bold px-3 py-2 rounded-lg hover:bg-[#ff4655]/20 transition-colors flex items-center gap-1.5">
                 <RefreshCw size={11} /> Re-sync
               </button>

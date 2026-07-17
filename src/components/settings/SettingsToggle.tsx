@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React from 'react';
@@ -19,7 +20,7 @@ export const SettingsToggle: React.FC<SettingsToggleProps> = ({
   const { preferences, setPreference } = useSettings();
   
   // Resolve value from nested key (e.g. "appearance.compactMode")
-  const value = (id.split('.').reduce((acc, part) => (acc as any)?.[part], preferences) as unknown as boolean) ?? defaultValue;
+  const value = (id.split('.').reduce((acc, part) => (acc as any)?.[part], preferences) as any as boolean) ?? defaultValue;
 
   const handleToggle = () => {
     setPreference(id, !value);

@@ -6,7 +6,6 @@ import { SETTINGS_REGISTRY, SettingDefinition } from '@/lib/settings/settingsReg
 
 export const SettingsSearch = () => {
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<SettingDefinition[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
   const searchRef = useRef<HTMLDivElement>(null);
@@ -19,24 +18,16 @@ export const SettingsSearch = () => {
     }
   }, []);
 
-  useEffect(() => {
-    if (!query.trim()) {
-      setResults([]);
-      setIsOpen(false);
-      return;
-    }
-
+  const results = React.useMemo(() => {
+    if (!query.trim()) return [];
     const q = query.toLowerCase();
-    const filtered = SETTINGS_REGISTRY.filter((s) => {
+    return SETTINGS_REGISTRY.filter((s) => {
       const matchTitle = s.title.toLowerCase().includes(q);
       const matchDesc = s.description?.toLowerCase().includes(q) || false;
       const matchCategory = s.category.toLowerCase().includes(q);
       const matchKeywords = s.keywords.some((k) => k.toLowerCase().includes(q));
       return matchTitle || matchDesc || matchCategory || matchKeywords;
     });
-
-    setResults(filtered);
-    setIsOpen(true);
   }, [query]);
 
   // Click outside to close
@@ -69,7 +60,11 @@ export const SettingsSearch = () => {
           ref={inputRef}
           type="text"
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => {
+            const val = e.target.value;
+            setQuery(val);
+            setIsOpen(val.trim().length > 0);
+          }}
           placeholder="Search settings..."
           className="block w-full pl-10 pr-3 py-2 border border-white/10 rounded-md leading-5 bg-black/50 text-white placeholder-zinc-400 focus:outline-none focus:ring-1 focus:ring-[#ff4655] focus:border-[#ff4655] sm:text-sm transition duration-150 ease-in-out"
         />

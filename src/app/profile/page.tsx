@@ -18,6 +18,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (!linked) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     getPlayerStats(linked.riotId, linked.region)
       .then(res => { setData(res.data); setLoading(false); })

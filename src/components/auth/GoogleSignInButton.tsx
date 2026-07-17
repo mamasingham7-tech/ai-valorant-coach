@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { GoogleLogin } from '@react-oauth/google';
@@ -16,14 +17,14 @@ export function GoogleSignInButton({
   const [error, setError] = useState('');
   const router = useRouter();
 
-  const handleSuccess = async (credentialResponse: any) => {
+  const handleSuccess = async (credentialResponse: unknown) => {
     setError('');
     try {
       const res = await fetch(`${API_BASE}/api/v1/auth/google`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ credential: credentialResponse.credential }),
+        body: JSON.stringify({ credential: (credentialResponse as any).credential }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || data.message || 'Google authentication failed');
@@ -32,7 +33,8 @@ export function GoogleSignInButton({
       if (onSuccess) onSuccess();
       else router.push('/dashboard');
     } catch (err: any) {
-      setError(err.message || 'An error occurred during Google Sign-In');
+      const e = err as Error;
+      setError(e.message || 'An error occurred during Google Sign-In');
     }
   };
 

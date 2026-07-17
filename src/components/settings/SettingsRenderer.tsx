@@ -6,7 +6,6 @@ import { SettingsCard } from './SettingsCard';
 import { SettingsToggle } from './SettingsToggle';
 import { SettingsSelect } from './SettingsSelect';
 import { SettingsButton } from './SettingsButton';
-import { useSettings } from '@/lib/settings/SettingsContext';
 import { useTheme } from 'next-themes';
 
 interface SettingsRendererProps {

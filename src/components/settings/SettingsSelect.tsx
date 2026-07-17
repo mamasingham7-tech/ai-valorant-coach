@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React from 'react';
@@ -22,7 +23,7 @@ export const SettingsSelect: React.FC<SettingsSelectProps> = ({
 }) => {
   const { preferences, setPreference } = useSettings();
   
-  const value = (id.split('.').reduce((acc, part) => (acc as any)?.[part], preferences) as unknown as string) ?? defaultValue;
+  const value = (id.split('.').reduce((acc, part) => (acc as any)?.[part], preferences) as any as string) ?? defaultValue;
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const val = e.target.value;

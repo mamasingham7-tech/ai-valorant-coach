@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { useSettings } from '@/lib/settings/SettingsContext';
+import { SettingDefinition } from '@/lib/settings/settingsRegistry';
 
 interface SettingsButtonProps {
   id: string;

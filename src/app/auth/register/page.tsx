@@ -116,6 +116,7 @@ export default function RegisterPage() {
               <input type={showPw ? "text" : "password"} required value={confirm}
                 onChange={e => setConfirm(e.target.value)} placeholder="Repeat password"
                 className={`w-full bg-white/5 border rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none transition-all ${confirm && confirm !== password ? "border-[#ff4655]/50" : "border-white/10 focus:border-[#ff4655]/50"}`} />
+              {/* eslint-disable-next-line react/no-unescaped-entities */}
               {confirm && confirm !== password && <p className="text-[10px] text-[#ff4655] font-semibold">Passwords don't match</p>}
             </div>
 

@@ -1,147 +1,128 @@
 "use client";
 
-import React, { useEffect } from 'react';
-import { X, Check, Trash2, Bell, Info, AlertTriangle, AlertCircle } from 'lucide-react';
-import { useNotifications, Notification } from '@/hooks/useNotifications';
+import React, { useState, useRef, useEffect } from 'react';
+import { Bell, Check, Trash2, CheckCircle2, AlertCircle, Info } from 'lucide-react';
+import { useNotifications, NotificationItem } from '@/hooks/useNotifications';
 
-type NotificationDrawerProps = {
-  isOpen: boolean;
-  onClose: () => void;
+const getIcon = (type: NotificationItem['type']) => {
+  switch (type) {
+    case 'success': return <CheckCircle2 className="text-green-500 w-5 h-5" />;
+    case 'error': return <AlertCircle className="text-red-500 w-5 h-5" />;
+    case 'warning': return <AlertCircle className="text-yellow-500 w-5 h-5" />;
+    case 'info': default: return <Info className="text-blue-500 w-5 h-5" />;
+  }
 };
 
-const typeIcons = {
-  info: <Info className="text-blue-400" size={16} />,
-  success: <Check className="text-green-400" size={16} />,
-  warning: <AlertTriangle className="text-yellow-400" size={16} />,
-  error: <AlertCircle className="text-red-400" size={16} />,
+const getTimeAgo = (timestamp: number) => {
+  const seconds = Math.floor((Date.now() - timestamp) / 1000);
+  if (seconds < 60) return 'Just now';
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
 };
 
-export default function NotificationDrawer({ isOpen, onClose }: NotificationDrawerProps) {
-  const { notifications, loading, markAsRead, markAllAsRead, deleteNotification } = useNotifications();
+export function NotificationDrawer() {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { notifications, getUnreadCount, markAsRead, markAllAsRead, deleteNotification } = useNotifications();
+  const unreadCount = getUnreadCount();
 
-  // Close drawer on escape key
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) onClose();
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
     };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
-
-  if (!isOpen) return null;
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isOpen]);
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end">
-      {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity" 
-        onClick={onClose}
-      />
-      
-      {/* Drawer */}
-      <div className="relative w-full max-w-sm h-full glass-panel border-l border-white/5 shadow-2xl flex flex-col transform transition-transform animate-in slide-in-from-right duration-300">
-        
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-white/5">
-          <div className="flex items-center gap-2">
-            <Bell size={18} className="text-slate-200" />
-            <h2 className="text-lg font-bold text-white">Notifications</h2>
-          </div>
-          <button 
-            onClick={onClose}
-            className="p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white transition-colors"
-          >
-            <X size={18} />
-          </button>
-        </div>
-
-        {/* Action Bar */}
-        {notifications.length > 0 && (
-          <div className="flex items-center justify-end px-4 py-2 border-b border-white/5 bg-white/5">
-            <button
-              onClick={markAllAsRead}
-              className="text-xs font-semibold text-slate-400 hover:text-white transition-colors"
-            >
-              Mark all as read
-            </button>
-          </div>
+    <div className="relative" ref={containerRef}>
+      <button 
+        onClick={() => setIsOpen(!isOpen)}
+        className="relative p-2 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+      >
+        <Bell size={18} />
+        {unreadCount > 0 && (
+          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#ff4655] rounded-full ring-2 ring-[#11161d]" />
         )}
+      </button>
 
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-3">
-          {loading ? (
-            <div className="flex flex-col gap-4">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="animate-pulse flex gap-3 p-3 rounded-xl bg-white/5">
-                  <div className="w-8 h-8 rounded-full bg-white/10" />
-                  <div className="flex-1 space-y-2">
-                    <div className="h-4 bg-white/10 rounded w-3/4" />
-                    <div className="h-3 bg-white/10 rounded w-1/2" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : notifications.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-center space-y-4 opacity-50">
-              <Bell size={48} className="text-slate-400" />
-              <div className="space-y-1">
-                <p className="text-sm font-bold text-slate-200">No Notifications</p>
-                <p className="text-xs text-slate-400">You're all caught up!</p>
-              </div>
-            </div>
-          ) : (
-            notifications.map((notif: Notification) => (
-              <div 
-                key={notif.id}
-                className={`relative group flex items-start gap-3 p-3 rounded-xl border transition-all ${
-                  notif.isRead 
-                    ? 'bg-transparent border-white/5 opacity-70' 
-                    : 'bg-white/5 border-white/10 shadow-lg'
-                }`}
+      {isOpen && (
+        <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-[#11161d] border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden flex flex-col max-h-[85vh]">
+          <div className="p-4 border-b border-white/5 flex items-center justify-between shrink-0 bg-[#11161d]/95 backdrop-blur">
+            <h3 className="font-semibold text-white">Notifications</h3>
+            {unreadCount > 0 && (
+              <button 
+                onClick={() => markAllAsRead()}
+                className="text-xs text-[#ff4655] hover:text-[#ff4655]/80 font-medium transition-colors"
               >
-                {!notif.isRead && (
-                  <span className="absolute -left-1 -top-1 w-2.5 h-2.5 bg-primary rounded-full" />
-                )}
-                
-                <div className="mt-1 shrink-0 p-1.5 bg-white/5 rounded-full">
-                  {typeIcons[notif.type || 'info'] || typeIcons['info']}
-                </div>
-                
-                <div className="flex-1 min-w-0">
-                  <h4 className={`text-sm font-bold truncate ${notif.isRead ? 'text-slate-300' : 'text-white'}`}>
-                    {notif.title}
-                  </h4>
-                  <p className="text-xs text-slate-400 mt-1 line-clamp-2">
-                    {notif.message}
-                  </p>
-                  <p className="text-[10px] text-slate-500 mt-2">
-                    {new Date(notif.createdAt).toLocaleString()}
-                  </p>
-                </div>
-                
-                <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  {!notif.isRead && (
-                    <button 
-                      onClick={() => markAsRead(notif.id)}
-                      className="p-1.5 text-slate-400 hover:text-green-400 hover:bg-white/10 rounded"
-                      title="Mark as read"
-                    >
-                      <Check size={14} />
-                    </button>
-                  )}
-                  <button 
-                    onClick={() => deleteNotification(notif.id)}
-                    className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-white/10 rounded"
-                    title="Delete"
-                  >
-                    <Trash2 size={14} />
-                  </button>
-                </div>
+                Mark all as read
+              </button>
+            )}
+          </div>
+
+          <div className="overflow-y-auto flex-1">
+            {notifications.length === 0 ? (
+              <div className="p-8 text-center flex flex-col items-center justify-center text-slate-500">
+                <Bell size={32} className="mb-3 opacity-20" />
+                <p className="text-sm">No notifications yet</p>
               </div>
-            ))
-          )}
+            ) : (
+              <div className="divide-y divide-white/5">
+                {notifications.map((notif) => (
+                  <div 
+                    key={notif.id}
+                    className={`p-4 flex gap-3 hover:bg-white/[0.02] transition-colors relative group ${!notif.isRead ? 'bg-white/[0.04]' : ''}`}
+                  >
+                    {!notif.isRead && (
+                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#ff4655]" />
+                    )}
+                    <div className="shrink-0 mt-0.5">
+                      {getIcon(notif.type)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-sm font-medium truncate ${!notif.isRead ? 'text-white' : 'text-slate-300'}`}>
+                        {notif.title}
+                      </p>
+                      <p className="text-xs text-slate-400 mt-1 line-clamp-2">
+                        {notif.message}
+                      </p>
+                      <p className="text-[10px] text-slate-500 mt-2 font-medium">
+                        {getTimeAgo(notif.createdAt)}
+                      </p>
+                    </div>
+                    <div className="shrink-0 flex flex-col items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      {!notif.isRead && (
+                        <button 
+                          onClick={() => markAsRead(notif.id)}
+                          className="p-1.5 text-slate-400 hover:text-white hover:bg-white/10 rounded-md transition-colors"
+                          title="Mark as read"
+                        >
+                          <Check size={14} />
+                        </button>
+                      )}
+                      <button 
+                        onClick={() => deleteNotification(notif.id)}
+                        className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-500/10 rounded-md transition-colors"
+                        title="Delete"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

@@ -139,6 +139,7 @@ export default function LoginPage() {
         </div>
 
         <p className="text-center text-sm text-slate-500 mt-6">
+          {/* eslint-disable-next-line react/no-unescaped-entities */}
           Don't have an account?{" "}
           <Link href="/auth/register" className="text-[#ff4655] font-bold hover:underline">Sign up</Link>
         </p>

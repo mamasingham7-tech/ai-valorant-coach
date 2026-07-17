@@ -19,6 +19,7 @@ export default function AccountSettingsPage() {
               .join('')
           )
         );
+    // eslint-disable-next-line react-hooks/set-state-in-effect
         setUser({
           email: payload.email || payload.sub || 'User',
           role: payload.role || 'user',

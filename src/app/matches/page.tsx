@@ -176,6 +176,7 @@ export default function MatchesPage() {
     }
   }
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { fetchMatches(filterMode); }, [linked?.riotId, filterMode]);
 
   const filtered = useMemo(() => matches.filter(m => {

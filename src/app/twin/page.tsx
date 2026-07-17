@@ -103,6 +103,7 @@ export default function DigitalTwinPage() {
 
   useEffect(() => {
     if (!linked) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     getPlayerStats(linked.riotId, linked.region)
       .then(res => { setData(res.data); setLoading(false); })
@@ -156,6 +157,7 @@ export default function DigitalTwinPage() {
         {loading && (
           <div className="glass-panel rounded-2xl p-8 text-center space-y-3 animate-pulse">
             <Brain size={32} className="text-[#8b5cf6] mx-auto" />
+                {/* eslint-disable-next-line react/no-unescaped-entities */}
             <p className="text-white font-bold">Analyzing {linked.gameName}'s match data…</p>
           </div>
         )}

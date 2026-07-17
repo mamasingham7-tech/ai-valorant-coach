@@ -1,94 +1,64 @@
-import { useState, useEffect } from 'react';
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
-export type Notification = {
+export interface NotificationItem {
   id: string;
   title: string;
   message: string;
+  type: 'info' | 'success' | 'warning' | 'error';
   isRead: boolean;
-  createdAt: string;
-  type?: 'info' | 'success' | 'warning' | 'error';
-};
-
-// Abstracted notification hook to manage notifications.
-// Currently uses localStorage to persist, but can be swapped out with backend APIs.
-export function useNotifications() {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  // Load from local storage on mount
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem('val_notifications');
-      if (stored) {
-        setNotifications(JSON.parse(stored));
-      } else {
-        // Initialize with some mock data so the user can see it works
-        const mockData: Notification[] = [
-          {
-            id: '1',
-            title: 'Welcome to AI Coach',
-            message: 'Your account has been created successfully.',
-            isRead: false,
-            createdAt: new Date().toISOString(),
-            type: 'success'
-          },
-          {
-            id: '2',
-            title: 'New Feature',
-            message: 'Check out the new Live Overlay feature!',
-            isRead: false,
-            createdAt: new Date(Date.now() - 3600000).toISOString(),
-            type: 'info'
-          }
-        ];
-        setNotifications(mockData);
-        localStorage.setItem('val_notifications', JSON.stringify(mockData));
-      }
-    } catch (e) {
-      console.error("Failed to load notifications", e);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  // Save to local storage whenever notifications change
-  useEffect(() => {
-    if (!loading) {
-      localStorage.setItem('val_notifications', JSON.stringify(notifications));
-    }
-  }, [notifications, loading]);
-
-  const markAsRead = (id: string) => {
-    setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
-  };
-
-  const markAllAsRead = () => {
-    setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
-  };
-
-  const deleteNotification = (id: string) => {
-    setNotifications(prev => prev.filter(n => n.id !== id));
-  };
-
-  const addNotification = (notification: Omit<Notification, 'id' | 'createdAt' | 'isRead'>) => {
-    const newNotification: Notification = {
-      ...notification,
-      id: crypto.randomUUID(),
-      createdAt: new Date().toISOString(),
-      isRead: false,
-    };
-    setNotifications(prev => [newNotification, ...prev]);
-  };
-
-  const unreadCount = notifications.filter(n => !n.isRead).length;
-
-  return {
-    notifications,
-    loading,
-    unreadCount,
-    markAsRead,
-    markAllAsRead,
-    deleteNotification,
-    addNotification
-  };
+  createdAt: number;
 }
+
+interface NotificationsState {
+  notifications: NotificationItem[];
+  addNotification: (notification: Omit<NotificationItem, 'id' | 'isRead' | 'createdAt'>) => void;
+  markAsRead: (id: string) => void;
+  markAllAsRead: () => void;
+  deleteNotification: (id: string) => void;
+  clearAll: () => void;
+  getUnreadCount: () => number;
+}
+
+export const useNotifications = create<NotificationsState>()(
+  persist(
+    (set, get) => ({
+      notifications: [],
+      addNotification: (notification) =>
+        set((state) => {
+          // Prevent exact duplicates if recent
+          const isDuplicate = state.notifications.some(
+            (n) => n.title === notification.title && Date.now() - n.createdAt < 5000
+          );
+          if (isDuplicate) return state;
+
+          const newNotification: NotificationItem = {
+            ...notification,
+            id: Math.random().toString(36).substring(2, 9),
+            isRead: false,
+            createdAt: Date.now(),
+          };
+          return { notifications: [newNotification, ...state.notifications] };
+        }),
+      markAsRead: (id) =>
+        set((state) => ({
+          notifications: state.notifications.map((n) =>
+            n.id === id ? { ...n, isRead: true } : n
+          ),
+        })),
+      markAllAsRead: () =>
+        set((state) => ({
+          notifications: state.notifications.map((n) => ({ ...n, isRead: true })),
+        })),
+      deleteNotification: (id) =>
+        set((state) => ({
+          notifications: state.notifications.filter((n) => n.id !== id),
+        })),
+      clearAll: () => set({ notifications: [] }),
+      getUnreadCount: () => get().notifications.filter((n) => !n.isRead).length,
+    }),
+    {
+      name: 'val_notifications',
+    }
+  )
+);

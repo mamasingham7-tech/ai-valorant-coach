@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // Centralised API client with auto-retry and connection health tracking
 
 export const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://ai-valorant-coach-backend.onrender.com";

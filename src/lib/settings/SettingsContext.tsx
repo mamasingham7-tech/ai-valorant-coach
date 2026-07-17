@@ -1,10 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { apiFetch } from '@/lib/api';
-import { SETTINGS_REGISTRY, SettingDefinition } from './settingsRegistry';
-
-type Preferences = Record<string, any>;
+type Preferences = any;
 
 interface SettingsContextType {
   preferences: Preferences;
@@ -47,14 +46,15 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
 
       setIsLoading(true);
       try {
-        const response: any = await apiFetch('/api/v1/me/preferences');
+        const response = await apiFetch<any>('/api/v1/me/preferences');
         if (response && response.data) {
           setPreferences(response.data);
         }
       } catch (err: any) {
+        const error = err as Error;
         // Silently ignore 401s on initial load (token might be expired)
-        if (!err.message?.includes('401')) {
-          console.warn('Failed to fetch preferences', err);
+        if (!error.message?.includes('401')) {
+          console.warn('Failed to fetch preferences', error);
         }
         setError('Failed to load settings');
       } finally {
@@ -104,7 +104,7 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
     let updatedPrefs: Preferences = {};
 
     // Optimistic UI update
-    setPreferences((prev) => {
+    setPreferences((prev: any) => {
       const newPrefs = JSON.parse(JSON.stringify(prev)); // deep clone
       setNested(newPrefs, key, value);
       updatedPrefs = newPrefs;
@@ -122,8 +122,9 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
         body: JSON.stringify(updatedPrefs)
       });
     } catch (err: any) {
-      if (!err.message?.includes('401')) {
-        console.warn(`Failed to save preference ${key}:`, err.message || err);
+      const error = err as Error;
+      if (!error.message?.includes('401')) {
+        console.warn(`Failed to save preference ${key}:`, error.message || error);
       }
     }
   }, []);

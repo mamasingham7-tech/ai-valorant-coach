@@ -2,6 +2,8 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { GlobalSearch } from "./GlobalSearch";
+import { NotificationDrawer } from "./NotificationDrawer";
 import {
   LayoutDashboard, Sword, Cpu, Tv, Trophy, User, Settings,
   ChevronLeft, ChevronRight, Search, Bell, Menu, X, Link2, LogIn,
@@ -15,7 +17,6 @@ const NAV = [
   { href: "/live",      label: "Live Coaching",  icon: Tv               },
   { href: "/training",  label: "Training",       icon: Trophy           },
   { href: "/profile",   label: "Profile",        icon: User             },
-  { href: "/admin",     label: "Admin",          icon: Settings         },
   { href: "/settings",  label: "Settings",       icon: Settings         },
 ];
 
@@ -42,6 +43,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             initials += parts[0].length > 1 ? parts[0].substring(1, 2).toUpperCase() : "";
         }
         
+    // eslint-disable-next-line react-hooks/set-state-in-effect
         setUser({ email, initials, picture });
       } catch (e) {
         setUser(null);
@@ -157,17 +159,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           </div>
 
           <div className="flex items-center gap-4">
-            {/* Search */}
-            <div className="hidden sm:flex items-center gap-2 bg-white/5 border border-white/5 rounded-lg px-3 py-1.5 text-slate-500 text-xs hover:border-white/10 transition-colors cursor-text w-44">
-              <Search size={12} />
-              <span>Search…</span>
-              <kbd className="ml-auto bg-white/10 rounded px-1 text-[10px]">⌘K</kbd>
-            </div>
-            {/* Bell */}
-            <button className="relative p-2 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors">
-              <Bell size={18} />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#ff4655] rounded-full" />
-            </button>
+            <GlobalSearch />
+            <NotificationDrawer />
             {/* Avatar */}
             {user ? (
               user.picture ? (

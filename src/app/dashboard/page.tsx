@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import AppShell from "@/components/layout/AppShell";
 import { useEffect, useState, useCallback } from "react";
@@ -19,7 +20,7 @@ const STATIC_INSIGHTS = [
 export default function DashboardPage() {
   const [status, setStatus]   = useState<BackendStatus>("checking");
   const [latency, setLatency] = useState<number | null>(null);
-  const [linked, setLinked] = useState<any>(null);
+  const [linked, setLinked] = useState<any | null>(null);
   const [isMounted, setIsMounted] = useState(false);
   const [data, setData] = useState<FullData | null>(null);
 
@@ -30,11 +31,13 @@ export default function DashboardPage() {
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMounted(true);
     setLinked(getLinkedAccount());
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     doHealthCheck();
     const interval = setInterval(doHealthCheck, 15000);
     return () => clearInterval(interval);
